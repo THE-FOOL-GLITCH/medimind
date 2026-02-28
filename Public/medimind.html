@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MediMind – AI Health Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --primary: #e11d48;
+      --primary-soft: #fee2e2;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
+      --shadow-soft: 0 18px 35px rgba(15, 23, 42, 0.08);
+      --radius-lg: 18px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #fee2e2, #f5f5f7 40%, #ffffff 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.85);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+    }
+
+    .navbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0.8rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .nav-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 20%, #fecaca, #be123c);
+      color: #fff;
+      font-size: 1.1rem;
+      box-shadow: 0 10px 25px rgba(248, 113, 113, 0.55);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+    }
+
+    .nav-links span {
+      cursor: pointer;
+      position: relative;
+      padding-bottom: 2px;
+    }
+
+    .nav-links span::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(to right, #fb7185, #ef4444);
+      transition: width 0.25s ease;
+    }
+
+    .nav-links span:hover::after {
+      width: 100%;
+    }
+
+    .burger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .burger span {
+      width: 22px;
+      height: 2px;
+      background: #111827;
+      border-radius: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .burger {
+        display: flex;
+      }
+
+      .nav-links {
+        position: absolute;
+        top: 60px;
+        right: 16px;
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow-soft);
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem 1.2rem;
+        min-width: 180px;
+        z-index: 100;
+        display: none;
+      }
+
+      .nav-links.show {
+        display: flex;
+      }
+    }
+
+    /* Page Layout */
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem 1.25rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.6fr);
+      gap: 2rem;
+      padding-top: 1.5rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(2.3rem, 4vw, 3rem);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-title span {
+      background: linear-gradient(90deg, #fb7185, #ef4444, #b91c1c);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      margin-top: 0.9rem;
+      font-size: 0.98rem;
+      color: var(--text-sub);
+    }
+
+    .hero-badges {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+    }
+
+    .badge {
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(252, 165, 165, 0.9);
+      background: rgba(254, 242, 242, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: #b91c1c;
+      font-weight: 600;
+    }
+
+    .badge-soft {
+      border-color: rgba(209, 213, 219, 0.7);
+      background: #f9fafb;
+      color: #4b5563;
+    }
+
+    .hero-cta-row {
+      margin-top: 1.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 0.7rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      box-shadow: 0 18px 30px rgba(248, 113, 113, 0.45);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 40px rgba(248, 113, 113, 0.55);
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text-sub);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .hero-panel {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(248, 113, 113, 0.18);
+      display: grid;
+      gap: 1rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .hero-stat h4 {
+      font-weight: 700;
+      color: #b91c1c;
+      font-size: 1.15rem;
+    }
+
+    .hero-stat p {
+      color: var(--text-sub);
+    }
+
+    /* Section Styles */
+    .section {
+      margin-top: 2.7rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1.4rem;
+      gap: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .section-kicker {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.3rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.2rem 1.2rem 1.1rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .feature-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.7rem;
+      font-size: 1.1rem;
+      background: var(--primary-soft);
+      color: #b91c1c;
+    }
+
+    .feature-card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-card p {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    /* Demo Shell */
+    .demo-shell {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      padding: 1.5rem 1.4rem 1.4rem;
+      display: grid;
+      gap: 1.3rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
+      gap: 1.4rem;
+    }
+
+    @media (max-width: 900px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: #374151;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-hint {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      font-weight: 400;
+    }
+
+    .input,
+    .textarea {
+      width: 100%;
+      border-radius: 0.8rem;
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.8rem;
+      font-size: 0.85rem;
+      outline: none;
+      background: #f9fafb;
+      color: var(--text-main);
+    }
+
+    .textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .input:focus,
+    .textarea:focus {
+      border-color: #fb7185;
+      box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.3);
+      background: #fff;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      display: none;
+    }
+
+    .file-input-label {
+      display: block;
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      border-radius: 0.8rem;
+      border: 1px dashed var(--border);
+      background: #fef9f7;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .file-input-label:hover {
+      border-color: #fb7185;
+      background: #fee2e2;
+    }
+
+    .file-name-display {
+      font-size: 0.75rem;
+      color: #b91c1c;
+      margin-top: 0.3rem;
+      font-weight: 500;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    @media (max-width: 600px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .code-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .code-row button {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      padding: 0.4rem 0.7rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: var(--text-sub);
+    }
+
+    .results {
+      border-radius: 14px;
+      border: 1px dashed rgba(248, 113, 113, 0.45);
+      background: linear-gradient(to bottom, #fff, #fef2f2);
+      padding: 1rem 1.1rem;
+      display: none;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .result-row {
+      padding: 0.6rem 0.65rem;
+      border-radius: 10px;
+      background: rgba(254, 226, 226, 0.6);
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .result-row h4 {
+      margin-bottom: 0.15rem;
+      font-size: 0.82rem;
+      color: #b91c1c;
+    }
+
+    .result-row p {
+      color: #4b5563;
+      line-height: 1.6;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid #fecaca;
+      border-top-color: #ef4444;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .chat-area {
+      margin-top: 1.1rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 1.2rem;
+    }
+
+    @media (max-width: 900px) {
+      .chat-area {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chat-box {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fefefe;
+      padding: 0.9rem;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.78rem;
+    }
+
+    .chat-msg-user span {
+      color: #b91c1c;
+      font-weight: 600;
+    }
+
+    .chat-msg-bot span {
+      color: #6b21a8;
+      font-weight: 600;
+    }
+
+    .chat-msg-user,
+    .chat-msg-bot {
+      margin-bottom: 0.4rem;
+      color: #374151;
+    }
+
+    .chat-input-row {
+      margin-top: 0.55rem;
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.8rem;
+      font-size: 0.8rem;
+      background: #f9fafb;
+    }
+
+    .chat-hint {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      padding: 0.7rem 0.75rem;
+      border-radius: 12px;
+      border: 1px dashed rgba(209, 213, 219, 0.8);
+      background: #f9fafb;
+    }
+
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .impact-card {
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .impact-num {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #b91c1c;
+    }
+
+    .impact-label {
+      margin-top: 0.25rem;
+      font-size: 0.78rem;
+      color: var(--text-sub);
+    }
+
+    .arch-shell {
+      margin-top: 1rem;
+      border-radius: var(--radius-lg);
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 1.2rem 1.3rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 1rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    @media (max-width: 900px) {
+      .arch-shell {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .arch-list {
+      list-style: none;
+      font-size: 0.82rem;
+      color: var(--text-sub);
+    }
+
+    .arch-list li {
+      margin-bottom: 0.55rem;
+      padding-left: 1.1rem;
+      position: relative;
+    }
+
+    .arch-list li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #ef4444;
+      font-size: 0.7rem;
+    }
+
+    .arch-diagram {
+      border-radius: 14px;
+      background: radial-gradient(circle at top, #fee2e2, #ffffff);
+      border: 1px solid rgba(248, 113, 113, 0.4);
+      padding: 1.1rem;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #7f1d1d;
+    }
+
+    .revenue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .revenue-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.2rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 22px rgba(15, 23, 42, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .revenue-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .revenue-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      color: #b91c1c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .revenue-card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .revenue-card p {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    .footer {
+      padding: 1.4rem 1.25rem 1.8rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      text-align: center;
+      margin-top: 2.5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="nav-left">
+        <div class="nav-logo">M</div>
+        <span>MediMind</span>
+      </div>
+      <button class="burger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links" id="mobileMenu">
+        <span onclick="scrollToSection('features')">Agents</span>
+        <span onclick="scrollToSection('discuss')">Discuss</span>
+        <span onclick="scrollToSection('impact')">Impact</span>
+        <span onclick="scrollToSection('architecture')">Architecture</span>
+        <span onclick="scrollToSection('revenue')">Revenue</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div>
+        <p class="section-kicker">GenAI · HealthTech · CyberSecurity</p>
+        <h1 class="hero-title">
+          Multi‑Agent <span>AI Health Orchestrator</span> for fast, structured insights.
+        </h1>
+        <p class="hero-sub">
+          MediMind turns a single description of symptoms into six focused AI agents:
+          diagnosis, risk, fraud, security, coordination and lifestyle guidance – all powered by local Ollama.
+        </p>
+        <div class="hero-badges">
+          <span class="badge">🔥 Gemini 3</span>
+          <span class="badge">🔥 Perplexity</span>
+          <span class="badge">🔥 ChatGpt</span>
+          <span class="badge">🔥 Grok API</span>
+          <span class="badge">🔥 Mixtral</span>
+          <span class="badge">🔥 Local Ollama</span>
+          <span class="badge badge-soft">Prescription OCR · fraud check</span>
+        </div>
+        <div class="hero-cta-row">
+          <button class="btn-primary" onclick="scrollToSection('discuss')">
+            🚀 Analyze a patient case
+          </button>
+          <button class="btn-ghost" onclick="scrollToSection('features')">
+            See all 6 agents →
+          </button>
+        </div>
+      </div>
+
+      <aside class="hero-panel">
+        <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 0.4rem;">
+          Live metrics (sample)
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <h4>📋</h4><p>prescription upload<br/>+ OCR</p>
+          </div>
+          <div class="hero-stat">
+            <h4>🛡️</h4><p>fraud consistency<br/>check</p>
+          </div>
+          <div class="hero-stat">
+            <h4>6</h4><p>AI agents per<br/>analysis</p>
+          </div>
+          <div class="hero-stat">
+            <h4>0x</h4><p>doctor words in<br/>final outputs</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Agents</p>
+          <h2 class="section-title">Six virtual specialists on every case.</h2>
+        </div>
+      </div>
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>Symptom Analyzer</h3>
+          <p>Summarises the case, proposes likely explanations and surfaces key red‑flag patterns in plain language.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Risk Predictor</h3>
+          <p>Reasons about age, history and symptoms to highlight near‑term and long‑term risk vectors for the patient.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Fraud Detector</h3>
+          <p>Checks prescription consistency with symptoms and flags unusual patterns – without accusing anyone.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <h3>Security Guardian</h3>
+          <p>Describes how this case should be logged, encrypted and de‑identified inside a compliant health stack.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>Coordinator</h3>
+          <p>Stitches all agent views into one concise narrative that is easy to skim during reviews.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">💊</div>
+          <h3>Recommendations</h3>
+          <p>Outputs lifestyle, tracking and reflection ideas only – strictly avoids telling users to go to any doctor.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Discussion/Demo Section -->
+    <section id="discuss" class="section">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Discuss</p>
+          <h2 class="section-title">Try MediMind.</h2>
+        </div>
+      </div>
+
+      <div class="demo-shell">
+        <div class="form-grid">
+          <form onsubmit="handleDemo(event)" id="mainForm">
+            <div class="profile-grid">
+              <div class="form-group">
+                <label class="form-label" for="name">
+                  Name
+                  <span class="form-hint">Used to personalise history</span>
+                </label>
+                <input id="name" class="input" placeholder="Your name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="userCode">
+                  MediMind code
+                  <span class="form-hint">Keep this same next time</span>
+                </label>
+                <div class="code-row">
+                  <input id="userCode" class="input" placeholder="e.g. MM-48273" />
+                  <button type="button" onclick="generateCode()">Generate</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="symptoms">Describe symptoms</label>
+              <textarea id="symptoms" class="textarea" required
+                placeholder="E.g., high fever, stomach ache and headache at the same time"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="age">Age</label>
+              <input id="age" type="number" class="input" min="1" max="120" required placeholder="Years" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="history">Medical history (optional)</label>
+              <textarea id="history" class="textarea"
+                placeholder="E.g., diabetes, hypertension, allergies..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prescription">
+                📋 Upload prescription (optional)
+                <span class="form-hint">Images</span>
+              </label>
+              <div class="file-input-wrapper">
+                <input id="prescription" type="file" accept=".png,.jpg,.jpeg" />
+                <label for="prescription" class="file-input-label">
+                  Click to upload prescription or drag & drop
+                </label>
+                <div id="fileName" class="file-name-display"></div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 0.4rem;">
+              🚀 Analyze with MediMind Agents
+            </button>
+            <div id="loadingSpinner" class="loading">
+              <div class="spinner"></div>
+              <span>Analyzing with Ollama Mistral + Tesseract OCR…</span>
+            </div>
+          </form>
+
+          <div>
+            <div id="demoResults" class="results">
+              <div class="result-row">
+                <h4>🔍 Symptom Analyzer</h4>
+                <p id="symptomResult"></p>
+              </div>
+              <div class="result-row">
+                <h4>📊 Risk Predictor</h4>
+                <p id="riskResult"></p>
+              </div>
+              <div class="result-row">
+                <h4>🛡️ Fraud Detector (+ Rx Check)</h4>
+                <p id="fraudResult"></p>
+              </div>
+              <div class="result-row">
+                <h4>🔐 Security Guardian</h4>
+                <p id="securityResult"></p>
+              </div>
+              <div class="result-row">
+                <h4>🤖 Coordinator</h4>
+                <p id="coordinatorResult"></p>
+              </div>
+              <div class="result-row">
+                <h4>💊 Recommendations</h4>
+                <p id="recommendationResult"></p>
+              </div>
+            </div>
+
+            <div class="chat-area">
+              <div>
+                <div class="chat-box" id="chatBox"></div>
+                <div class="chat-input-row">
+                  <input id="chatInput" placeholder="Ask a follow‑up about this case…" />
+                  <button class="btn-ghost" type="button" onclick="handleChat()">Send</button>
+                </div>
+              </div>
+              <div class="chat-hint">
+                Follow‑up chat keeps the full case + agent analysis as context, so answers stay aligned with the
+                original run. Outputs only explanations and lifestyle ideas – never "go to a doctor / hospital".
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section id="impact" class="section">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Impact</p>
+        </div>
+      </div>
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="impact-num">📋</div>
+          <div class="impact-label">Prescription OCR + consistency check in fraud detector</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-num">6×</div>
+          <div class="impact-label">More structured info vs single‑answer chatbots</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-num">🔬</div>
+          <div class="impact-label">Tesseract OCR for real prescription analysis</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-num">0</div>
+          <div class="impact-label">Doctor / hospital mentions in final output</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="section">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Architecture</p>
+          <h2 class="section-title">One call, six agents, clean UI + prescription OCR.</h2>
+        </div>
+      </div>
+
+      <div class="arch-shell">
+        <div>
+          <ul class="arch-list">
+            <li>Frontend: static HTML + CSS + vanilla JS, easy to host anywhere.</li>
+            <li>Backend: tiny Express server with multer for file upload, Tesseract.js for OCR.</li>
+            <li>Inference: Local Ollama Mistral model hit once with multi‑agent formatted prompt.</li>
+            <li>Prescription handling: OCR extracts text, passed to FRAUD_DETECTOR for consistency check.</li>
+          </ul>
+        </div>
+        <div class="arch-diagram">
+          <strong>Flow:</strong><br/><br/>
+          User fills case + optional Rx → FormData upload → Express backend → Tesseract OCR → (Local Ollama, Mixtral, Grok API, ChatGpt, Perplexity, Gemini 3) → 
+          multi‑agent text → parser splits into 🔍 📊 🛡️ 🔐 🤖 💊 → UI paints cards & chat.<br/><br/>
+          Same pipeline powers both the first run and all follow‑up questions.
+        </div>
+      </div>
+    </section>
+
+    <!-- Revenue Section -->
+    <section id="revenue" class="section">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Business</p>
+          <h2 class="section-title">Revenue & Monetization Model</h2>
+        </div>
+      </div>
+
+      <div class="revenue-grid">
+        <div class="revenue-card">
+          <div class="revenue-icon">🏥</div>
+          <h3>Insurance Company Partnerships</h3>
+          <p>
+            Risk-profiling insights, fraud pattern analytics and population-level health trends
+            offered to insurance providers on a licensing basis.
+          </p>
+        </div>
+
+        <div class="revenue-card">
+          <div class="revenue-icon">📢</div>
+          <h3>Promoted Health Campaigns</h3>
+          <p>
+            Ethical promotion of verified wellness programs, preventive care drives
+            and awareness campaigns inside the platform.
+          </p>
+        </div>
+
+        <div class="revenue-card">
+          <div class="revenue-icon">🛒</div>
+          <h3>Affiliate Health Products</h3>
+          <p>
+            Affiliate revenue from trusted health products, devices and supplements
+            via platforms like Amazon and Flipkart.
+          </p>
+        </div>
+
+        <div class="revenue-card">
+          <div class="revenue-icon">🏨</div>
+          <h3>Hospital & Clinic Subscriptions</h3>
+          <p>
+            Monthly SaaS subscriptions for clinics and hospitals to use MediMind
+            as a pre-screening, risk and compliance intelligence layer.
+          </p>
+        </div>
+
+        <div class="revenue-card">
+          <div class="revenue-icon">👤</div>
+          <h3>Patient Subscriptions</h3>
+          <p>
+            Premium plans for individuals offering long-term history tracking,
+            personalized insights and advanced multi-agent analysis.
+          </p>
+        </div>
+
+        <div class="revenue-card">
+          <div class="revenue-icon">🏫</div>
+          <h3>Government & Education Tenders</h3>
+          <p>
+            Deployments in government schools, colleges and public health programs
+            through institutional tenders and grants.
+          </p>
+        </div>
+
+        <div class="revenue-card">
+          <div class="revenue-icon">🔗</div>
+          <h3>API Integration Revenue</h3>
+          <p>
+            Paid API access for third-party apps, startups and health platforms
+            to integrate MediMind's multi-agent intelligence.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    🚀 MediMind · APIs + Tesseract OCR multi‑agent health · Built for deep-tech learners
+  </footer>
+
+  <script>
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // File input display name
+    document.getElementById('prescription').addEventListener('change', (e) => {
+      const fileName = e.target.files[0]?.name || '';
+      document.getElementById('fileName').textContent = fileName ? `📎 ${fileName}` : '';
+    });
+
+    function cleanText(text) {
+      if (!text) return '';
+      return text
+        .replace(/consult[^.]*doctor[^.]*/gi, '')
+        .replace(/see[^.]*physician[^.]*/gi, '')
+        .replace(/visit[^.]*hospital[^.]*/gi, '')
+        .replace(/seek[^.]*medical[^.]*/gi, '')
+        .replace(/contact[^.]*health[^.]*/gi, '')
+        .replace(/emergency[^.]*room[^.]*/gi, '')
+        .trim();
+    }
+
+    function toHtml(text) {
+      if (!text) return '';
+      return text
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => line.replace(/^\d+\.\s*/, '• '))
+        .join('<br>');
+    }
+
+    function parseAgentResponse(response) {
+      const agents = { symptom:'', risk:'', fraud:'', security:'', coordinator:'', recommendations:'' };
+      const sections = {
+        symptom: /🔍\s*SYMPTOM_ANALYZER:?\s*([\s\S]*?)(?=📊|RISK_PREDICTOR|🛡️|FRAUD_DETECTOR|🔐|SECURITY_GUARDIAN|🤖|COORDINATOR|💊|RECOMMENDATIONS|$)/i,
+        risk: /📊\s*RISK_PREDICTOR:?\s*([\s\S]*?)(?=🛡️|FRAUD_DETECTOR|🔐|SECURITY_GUARDIAN|🤖|COORDINATOR|💊|RECOMMENDATIONS|$)/i,
+        fraud: /🛡️\s*FRAUD_DETECTOR:?\s*([\s\S]*?)(?=🔐|SECURITY_GUARDIAN|🤖|COORDINATOR|💊|RECOMMENDATIONS|$)/i,
+        security: /🔐\s*SECURITY_GUARDIAN:?\s*([\s\S]*?)(?=🤖|COORDINATOR|💊|RECOMMENDATIONS|$)/i,
+        coordinator: /🤖\s*COORDINATOR_INSIGHTS:?\s*([\s\S]*?)(?=💊|RECOMMENDATIONS|$)/i,
+        recommendations: /💊\s*RECOMMENDATIONS:?\s*([\s\S]*?)$/i,
+      };
+      Object.keys(sections).forEach(key => {
+        const m = response.match(sections[key]);
+        if (m && m[1]) agents[key] = cleanText(m[1].trim());
+      });
+      return agents;
+    }
+
+    let lastCaseContext = '';
+
+    function generateCode() {
+      const input = document.getElementById('userCode');
+      if (input.value) return;
+      const num = Math.floor(10000 + Math.random()*90000);
+      input.value = `MM-${num}`;
+    }
+
+    async function handleDemo(e) {
+      e.preventDefault();
+      const symptoms = document.getElementById('symptoms').value;
+      const age = document.getElementById('age').value;
+      const history = document.getElementById('history').value || 'None';
+      const name = document.getElementById('name').value || 'Guest';
+      const userCode = document.getElementById('userCode').value || 'ANON-0000';
+      const prescriptionFile = document.getElementById('prescription').files[0];
+      const loader = document.getElementById('loadingSpinner');
+      const results = document.getElementById('demoResults');
+
+      loader.style.display = 'flex';
+      results.classList.remove('show');
+
+      try {
+        const formData = new FormData();
+        formData.append('symptoms', symptoms);
+        formData.append('age', age);
+        formData.append('history', history);
+        formData.append('name', name);
+        formData.append('userCode', userCode);
+        if (prescriptionFile) formData.append('prescription', prescriptionFile);
+
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          body: formData
+        });
+        if (!res.ok) throw new Error('Analyze failed');
+        const data = await res.json();
+        const fullResponse = data.fullResponse;
+
+        lastCaseContext = `Patient case:
+SYMPTOMS: ${symptoms}
+AGE: ${age}
+HISTORY: ${history}
+${prescriptionFile ? `PRESCRIPTION_UPLOADED: ${prescriptionFile.name}` : 'NO_PRESCRIPTION'}
+
+Multi-agent analysis:
+${fullResponse}`;
+
+        const agents = parseAgentResponse(fullResponse);
+        document.getElementById('symptomResult').innerHTML = toHtml(agents.symptom) || 'Processing...';
+        document.getElementById('riskResult').innerHTML = toHtml(agents.risk) || 'Processing...';
+        document.getElementById('fraudResult').innerHTML = toHtml(agents.fraud) || 'Processing...';
+        document.getElementById('securityResult').innerHTML = toHtml(agents.security) || 'Processing...';
+        document.getElementById('coordinatorResult').innerHTML = toHtml(agents.coordinator) || 'Processing...';
+        document.getElementById('recommendationResult').innerHTML = toHtml(agents.recommendations) || 'Processing...';
+
+        results.classList.add('show');
+      } catch (err) {
+        console.error(err);
+        alert('Error analyzing data (server). Make sure Ollama is running and Tesseract is installed.');
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    async function handleChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text || !lastCaseContext) return;
+      input.value = '';
+
+      const box = document.getElementById('chatBox');
+      box.innerHTML += `<div class="chat-msg-user"><span>You:</span> ${text}</div>`;
+      box.scrollTop = box.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ caseContext: lastCaseContext, question: text })
+        });
+        if (!res.ok) throw new Error('Chat failed');
+        const data = await res.json();
+        const clean = cleanText(data.reply).substring(0, 800);
+        box.innerHTML += `<div class="chat-msg-bot"><span>MediMind:</span> ${clean}</div>`;
+        box.scrollTop = box.scrollHeight;
+      } catch (err) {
+        console.error(err);
+        box.innerHTML += `<div class="chat-msg-bot"><span>MediMind:</span> Error answering.</div>`;
+      }
+    }
+
+    function toggleMenu() {
+      document.getElementById('mobileMenu').classList.toggle('show');
+    }
+  </script>
+</body>
+</html>
